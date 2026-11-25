@@ -99,6 +99,7 @@ expect_resolves www.google.com
 expect_resolves www.wikipedia.org
 expect_resolves fcm.googleapis.com
 
+expect_blocked app-measurement.com   # looked up again, so it is the newest row, at the top of the list
 sleep 2
 shot 2-protection-on
 on_screen contains "protection is on" && pass "app shows Protection is ON" || fail "app does not show ON"

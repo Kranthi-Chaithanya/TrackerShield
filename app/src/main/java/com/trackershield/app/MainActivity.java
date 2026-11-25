@@ -62,6 +62,7 @@ public class MainActivity extends Activity implements BlockLog.Listener {
     private String privateDnsServer;
     private TextView stats;
     private TextView topOwners;
+    private TextView emptyText;
     private Button toggle;
     private LogAdapter adapter;
 
@@ -102,11 +103,15 @@ public class MainActivity extends Activity implements BlockLog.Listener {
 
     // ---- Screen ----
 
+    /**
+     * One scrolling page: the controls are the list's header, so on small screens the
+     * tracker list isn't squeezed into the bottom of the screen.
+     */
     private View buildLayout() {
         int pad = dp(16);
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
-        root.setPadding(pad, pad, pad, 0);
+        root.setPadding(0, 0, 0, dp(8));
 
         TextView intro = text("Stops the apps on this phone from sending your data to known tracking and "
                 + "advertising companies. Works for every app, no root needed.", 14, false);
@@ -159,19 +164,22 @@ public class MainActivity extends Activity implements BlockLog.Listener {
         header.setPadding(0, dp(16), 0, dp(4));
         root.addView(header);
 
+        emptyText = text("Nothing yet. Turn protection on, then use your apps as normal.", 14, false);
+        emptyText.setTextColor(Color.GRAY);
+        emptyText.setPadding(0, dp(8), 0, 0);
+        root.addView(emptyText);
+
         ListView list = new ListView(this);
+        list.setPadding(pad, pad, pad, pad);
+        list.setClipToPadding(false);
+        list.addHeaderView(root, null, false);
         adapter = new LogAdapter();
         list.setAdapter(adapter);
-        list.setOnItemClickListener((parent, view, position, id) -> onEntryTapped(adapter.getItem(position)));
-        TextView empty = text("Nothing yet. Turn protection on, then use your apps as normal.", 14, false);
-        empty.setTextColor(Color.GRAY);
-        empty.setPadding(0, dp(16), 0, 0);
-        FrameLayout listFrame = new FrameLayout(this);
-        listFrame.addView(list);
-        listFrame.addView(empty);
-        list.setEmptyView(empty);
-        root.addView(listFrame, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
-        return root;
+        list.setOnItemClickListener((parent, view, position, id) -> {
+            Object item = parent.getItemAtPosition(position);  // accounts for the header row
+            if (item instanceof BlockLog.Entry) onEntryTapped((BlockLog.Entry) item);
+        });
+        return list;
     }
 
     private void refresh() {
@@ -196,7 +204,9 @@ public class MainActivity extends Activity implements BlockLog.Listener {
             topOwners.setText("Most blocked: " + TextUtils.join(" · ", parts));
             topOwners.setVisibility(View.VISIBLE);
         }
-        adapter.setItems(log.snapshot());
+        List<BlockLog.Entry> items = log.snapshot();
+        emptyText.setVisibility(items.isEmpty() ? View.VISIBLE : View.GONE);
+        adapter.setItems(items);
     }
 
     /** Points out phone settings that stop the shield from working. */
