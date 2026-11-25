@@ -21,16 +21,16 @@ jobs:
 
       - name: Build the app
         env:
-          SIGNING_KEYSTORE_BASE64: ${{ secrets.SIGNING_KEYSTORE_BASE64 }}
-          SIGNING_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
-          SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
-          SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
+          SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
         run: |
           chmod +x gradlew
-          if [ -n "$SIGNING_KEYSTORE_BASE64" ]; then
-            # Permanent key from the repository secrets: every version can update the last one.
-            echo "$SIGNING_KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/release.jks"
-            export SIGNING_KEYSTORE="$RUNNER_TEMP/release.jks"
+          if [ -n "$SIGNING_PASSWORD" ]; then
+            # Permanent key (signing/, encrypted) unlocked by the SIGNING_PASSWORD secret:
+            # every version can update the one before it.
+            export SIGNING_KEYSTORE="$GITHUB_WORKSPACE/signing/trackershield-release.p12"
+            export SIGNING_STORE_PASSWORD="$SIGNING_PASSWORD"
+            export SIGNING_KEY_PASSWORD="$SIGNING_PASSWORD"
+            export SIGNING_KEY_ALIAS=trackershield
             ./gradlew :app:assembleRelease :testapp:assembleDebug --no-daemon
             cp app/build/outputs/apk/release/app-release.apk TrackerShield.apk
             echo "signed with the permanent release key" > signing.txt
