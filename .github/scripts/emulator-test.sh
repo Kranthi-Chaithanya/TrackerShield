@@ -3,6 +3,7 @@
 # and checks that tracker lookups are blocked while normal sites still work.
 # Usage: emulator-test.sh path/to/app-debug.apk
 set -uo pipefail
+exec > >(tee emulator-test-log.txt) 2>&1   # keep a copy of everything printed
 
 APK="$1"
 PKG=com.trackershield.app
