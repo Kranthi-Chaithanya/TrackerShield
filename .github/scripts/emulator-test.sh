@@ -30,11 +30,30 @@ for n in root.iter('node'):
 sys.exit(1)
 PY
 
+raw_dump() {  # raw_dump NAME -> $OUT/ui-NAME.xml
+  adb shell uiautomator dump /sdcard/ui.xml >/dev/null 2>&1 && \
+    adb pull /sdcard/ui.xml "$OUT/ui-$1.xml" >/dev/null 2>&1
+}
+
+# A slow emulator sometimes shows Android's own "<app> isn't responding" pop-up over everything
+# (usually for the home screen app). Tap "Wait" so it doesn't hide the screen under test.
+dismiss_anr() {  # dismiss_anr NAME -> returns 0 if a pop-up was dismissed
+  python3 /tmp/find_on_screen.py "$OUT/ui-$1.xml" contains "isn't responding" >/dev/null || return 1
+  local xy
+  xy=$(python3 /tmp/find_on_screen.py "$OUT/ui-$1.xml" exact "wait") || return 1
+  echo "  (dismissing an Android 'isn't responding' pop-up)"
+  adb shell input tap $xy
+  sleep 2
+  return 0
+}
+
 dump_ui() {  # dump_ui NAME -> $OUT/ui-NAME.xml
-  for _ in 1 2 3; do
-    adb shell uiautomator dump /sdcard/ui.xml >/dev/null 2>&1 && \
-      adb pull /sdcard/ui.xml "$OUT/ui-$1.xml" >/dev/null 2>&1 && return 0
-    sleep 2
+  for _ in 1 2 3 4 5; do
+    if raw_dump "$1"; then
+      dismiss_anr "$1" || return 0
+    else
+      sleep 2
+    fi
   done
   return 1
 }
@@ -85,6 +104,12 @@ adb install -r -g "$DEMO_APK" || { fail "demo install failed"; exit 1; }
 adb shell appops set $PKG ACTIVATE_VPN allow      # stands in for tapping OK on the VPN consent dialog
 adb shell appops set $PKG GET_USAGE_STATS allow   # stands in for the user turning on "Usage access"
 adb logcat -c
+
+echo "== Let the emulator settle after starting up"
+sleep 20
+adb shell input keyevent KEYCODE_HOME
+sleep 3
+dump_ui settle || true
 
 echo "== Wait for the emulator's internet connection"
 for i in $(seq 1 45); do
