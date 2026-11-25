@@ -1,0 +1,186 @@
+# TrackerShield tracker list
+# Format: domain|Company. A domain also blocks everything under it
+# (app-measurement.com also blocks region1.app-measurement.com).
+# Domains that apps need to work at all (push notifications, logins, app stores,
+# video/CDN servers) are deliberately left out. Add or remove lines freely.
+
+# --- Google: analytics, ads, crash reporting ---
+app-measurement.com|Google Firebase Analytics
+app-analytics-services.com|Google Firebase Analytics
+app-analytics-services-att.com|Google Firebase Analytics
+firebaselogging-pa.googleapis.com|Google Firebase
+firebase-settings.crashlytics.com|Google Crashlytics
+crashlyticsreports-pa.googleapis.com|Google Crashlytics
+google-analytics.com|Google Analytics
+analytics.google.com|Google Analytics
+googletagmanager.com|Google Tag Manager
+googletagservices.com|Google Ads
+doubleclick.net|Google Ads (DoubleClick)
+googleadservices.com|Google Ads
+googlesyndication.com|Google AdMob / AdSense
+adservice.google.com|Google Ads
+admob.com|Google AdMob
+imasdk.googleapis.com|Google Ads (video)
+
+# --- Meta / Facebook ---
+graph.facebook.com|Meta (Facebook SDK)
+an.facebook.com|Meta Audience Network
+connect.facebook.net|Meta Pixel
+pixel.facebook.com|Meta Pixel
+
+# --- Install tracking & marketing analytics ---
+appsflyer.com|AppsFlyer
+appsflyersdk.com|AppsFlyer
+adjust.com|Adjust
+adjust.io|Adjust
+adjust.net.in|Adjust
+api.branch.io|Branch
+api2.branch.io|Branch
+kochava.com|Kochava
+singular.net|Singular
+apsalar.com|Singular
+tenjin.com|Tenjin
+airbridge.io|Airbridge
+mobileapptracking.com|TUNE
+mixpanel.com|Mixpanel
+mxpnl.com|Mixpanel
+amplitude.com|Amplitude
+segment.io|Segment
+cdn.segment.com|Segment
+braze.com|Braze
+braze.eu|Braze
+appboy.com|Braze
+clevertap-prod.com|CleverTap
+wzrkt.com|CleverTap
+moengage.com|MoEngage
+webengage.com|WebEngage
+netcoresmartech.com|Netcore Smartech
+apxor.com|Apxor
+leanplum.com|Leanplum
+localytics.com|Localytics
+swrve.com|Swrve
+flurry.com|Yahoo Flurry
+heapanalytics.com|Heap
+nr-data.net|New Relic
+in.appcenter.ms|Microsoft App Center
+mobile.events.data.microsoft.com|Microsoft Telemetry
+vortex.data.microsoft.com|Microsoft Telemetry
+igaworks.com|IGAWorks
+appier.net|Appier
+
+# --- Session recording (screens and taps) ---
+uxcam.com|UXCam
+smartlook.com|Smartlook
+userexperior.com|UserExperior
+hotjar.com|Hotjar
+fullstory.com|FullStory
+contentsquare.net|Contentsquare
+clarity.ms|Microsoft Clarity
+
+# --- Ad networks ---
+applovin.com|AppLovin
+applvn.com|AppLovin
+unityads.unity3d.com|Unity Ads
+cdp.cloud.unity3d.com|Unity Analytics
+config.uca.cloud.unity3d.com|Unity Analytics
+ironsrc.com|ironSource
+ironsrc.mobi|ironSource
+supersonicads.com|ironSource
+vungle.com|Liftoff Vungle
+liftoff.io|Liftoff
+chartboost.com|Chartboost
+inmobi.com|InMobi
+inmobicdn.net|InMobi
+adcolony.com|AdColony
+tapjoy.com|Tapjoy
+tapjoyads.com|Tapjoy
+mopub.com|MoPub
+startappservice.com|Start.io
+mintegral.com|Mintegral
+rayjump.com|Mintegral
+mtgglobals.com|Mintegral
+mobvista.com|Mobvista
+fyber.com|Fyber
+inner-active.mobi|Fyber
+smaato.net|Smaato
+appodeal.com|Appodeal
+appodealx.com|Appodeal
+bidmachine.io|BidMachine
+adsmoloco.com|Moloco
+ogury.io|Ogury
+presage.io|Ogury
+pangle.io|Pangle (ByteDance)
+pangleglobal.com|Pangle (ByteDance)
+analytics.tiktok.com|TikTok Pixel
+log.byteoversea.com|ByteDance
+appnext.com|Appnext
+vserv.mobi|Vserv
+mediasmart.io|Affle MediaSmart
+mobfox.com|MobFox
+airpush.com|Airpush
+tappx.com|Tappx
+pollfish.com|Pollfish
+aarki.net|Aarki
+amazon-adsystem.com|Amazon Ads
+criteo.com|Criteo
+criteo.net|Criteo
+taboola.com|Taboola
+outbrain.com|Outbrain
+adnxs.com|Xandr
+rubiconproject.com|Magnite
+pubmatic.com|PubMatic
+openx.net|OpenX
+casalemedia.com|Index Exchange
+adsrvr.org|The Trade Desk
+adform.net|Adform
+smartadserver.com|Smart AdServer
+ads.yahoo.com|Yahoo Ads
+analytics.yahoo.com|Yahoo Analytics
+ad.mail.ru|VK myTarget
+an.yandex.ru|Yandex Ads
+bat.bing.com|Microsoft Ads
+ads.linkedin.com|LinkedIn Ads
+ads-api.twitter.com|X (Twitter) Ads
+analytics.twitter.com|X (Twitter) Analytics
+tr.snapchat.com|Snap Pixel
+ct.pinterest.com|Pinterest Tag
+
+# --- Ad verification & audience data ---
+moatads.com|Oracle Moat
+adsafeprotected.com|Integral Ad Science
+doubleverify.com|DoubleVerify
+scorecardresearch.com|comScore
+quantserve.com|Quantcast
+imrworldwide.com|Nielsen
+exelator.com|Nielsen
+demdex.net|Adobe Audience Manager
+omtrdc.net|Adobe Analytics
+2o7.net|Adobe Analytics
+krxd.net|Salesforce Krux
+bluekai.com|Oracle BlueKai
+rlcdn.com|LiveRamp
+agkn.com|Neustar
+tapad.com|Tapad
+go-mpulse.net|Akamai mPulse
+
+# --- Yandex, Alibaba ---
+appmetrica.yandex.net|Yandex AppMetrica
+appmetrica.yandex.com|Yandex AppMetrica
+mc.yandex.ru|Yandex Metrica
+umeng.com|Umeng (Alibaba)
+umengcloud.com|Umeng (Alibaba)
+
+# --- Phone makers' ad and analytics servers ---
+tracking.miui.com|Xiaomi
+tracking.intl.miui.com|Xiaomi
+data.mistat.xiaomi.com|Xiaomi
+data.mistat.intl.xiaomi.com|Xiaomi
+api.ad.xiaomi.com|Xiaomi Ads
+sdkconfig.ad.xiaomi.com|Xiaomi Ads
+globalapi.ad.xiaomi.com|Xiaomi Ads
+adx.ads.oppomobile.com|OPPO / Realme Ads
+adsfs.oppomobile.com|OPPO / Realme Ads
+adsdk.vivo.com.cn|vivo Ads
+samsungads.com|Samsung Ads
+metrics.data.hicloud.com|Huawei Analytics
+metrics2.data.hicloud.com|Huawei Analytics

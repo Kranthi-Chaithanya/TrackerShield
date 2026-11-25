@@ -1,0 +1,29 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.trackershield.app'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'com.trackershield.app'
+        minSdk 26          // Android 8.0 and newer
+        targetSdk 34
+        versionCode 1
+        versionName '1.0'
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+// No libraries needed: the app uses only what is built into Android.
