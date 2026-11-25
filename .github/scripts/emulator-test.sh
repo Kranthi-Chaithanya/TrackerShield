@@ -169,14 +169,14 @@ sleep 2
 shot 4-which-apps
 expect_on_screen exact "tracker demo" "Tracker Demo is listed"
 expect_on_screen contains "while you weren't using it" "background tracking is reported"
-expect_on_screen contains "built-in trackers (3)" "3 built-in trackers found in Tracker Demo"
+expect_on_screen contains "built-in trackers (4)" "4 built-in trackers found in Tracker Demo"
 expect_on_screen exact "shell" "lookups from the command line are named too"
 
 echo "== Tracker Demo details"
 tap exact "tracker demo"
 sleep 3
 shot 5-app-detail
-expect_on_screen contains "tried to send data to 4 tracking companies" "detail: companies counted"
+expect_on_screen contains "tried to send data to 5 tracking companies" "detail: companies counted (incl. Sentry)"
 expect_on_screen contains "happened while you weren't using the app" "detail: background share shown"
 expect_on_screen contains "appsflyer" "detail: AppsFlyer attempts listed"
 adb shell input swipe 540 1900 540 500 400
@@ -186,6 +186,7 @@ sleep 2
 shot 6-app-detail-more
 expect_on_screen contains "attribution: appsflyer" "detail: AppsFlyer built in (Attribution)"
 expect_on_screen contains "analytics: facebook analytics, google firebase analytics" "detail: analytics libraries built in"
+expect_on_screen contains "crash reporting: sentry" "detail: Sentry built in (Crash reporting)"
 adb shell input keyevent KEYCODE_BACK
 sleep 1
 adb shell input keyevent KEYCODE_BACK

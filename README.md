@@ -12,7 +12,7 @@ Before an app can send data to a server like `app-measurement.com`, it has to lo
 server's address (a "DNS lookup"). TrackerShield sets up a VPN that stays on your phone and
 only carries these lookups:
 
-* A lookup for one of the 165 tracker domains on its list gets the answer "no such address",
+* A lookup for one of the 181 tracker domains on its list gets the answer "no such address",
   so the app can't send the data.
 * All other lookups go to your normal DNS server and are answered as usual.
 * Your other internet traffic does not pass through TrackerShield, so it isn't slowed down.

@@ -14,7 +14,8 @@ import java.net.InetAddress;
  */
 public class DemoActivity extends Activity {
     private static final String[] TRACKERS = {
-            "app-measurement.com", "t.appsflyer.com", "graph.facebook.com", "api.mixpanel.com"};
+            "app-measurement.com", "t.appsflyer.com", "graph.facebook.com", "api.mixpanel.com",
+            "o4504.ingest.us.sentry.io"};
     private static Thread worker;
 
     @Override
@@ -29,6 +30,7 @@ public class DemoActivity extends Activity {
         new com.appsflyer.AppsFlyerLib();
         new com.google.firebase.analytics.FirebaseAnalytics();
         new com.facebook.appevents.AppEventsLogger();
+        new io.sentry.Sentry();
 
         synchronized (DemoActivity.class) {
             if (worker != null) return;

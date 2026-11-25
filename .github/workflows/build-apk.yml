@@ -20,15 +20,37 @@ jobs:
           java-version: 17
 
       - name: Build the app
+        env:
+          SIGNING_KEYSTORE_BASE64: ${{ secrets.SIGNING_KEYSTORE_BASE64 }}
+          SIGNING_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
+          SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
+          SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
         run: |
           chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon
+          if [ -n "$SIGNING_KEYSTORE_BASE64" ]; then
+            # Permanent key from the repository secrets: every version can update the last one.
+            echo "$SIGNING_KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/release.jks"
+            export SIGNING_KEYSTORE="$RUNNER_TEMP/release.jks"
+            ./gradlew :app:assembleRelease :testapp:assembleDebug --no-daemon
+            cp app/build/outputs/apk/release/app-release.apk TrackerShield.apk
+            echo "signed with the permanent release key" > signing.txt
+          else
+            echo "No signing key in the repository secrets: building a test-signed APK"
+            ./gradlew :app:assembleDebug :testapp:assembleDebug --no-daemon
+            cp app/build/outputs/apk/debug/app-debug.apk TrackerShield.apk
+            echo "signed with a temporary test key (no permanent key set up)" > signing.txt
+          fi
+          APKSIGNER=$(ls -d "$ANDROID_HOME"/build-tools/*/ | sort -V | tail -1)apksigner
+          "$APKSIGNER" verify --print-certs TrackerShield.apk | grep -i "SHA-256" >> signing.txt || true
+          cat signing.txt
 
       - name: Upload the APK
         uses: actions/upload-artifact@v4
         with:
           name: TrackerShield-apk
-          path: app/build/outputs/apk/debug/app-debug.apk
+          path: |
+            TrackerShield.apk
+            signing.txt
 
       - name: Upload the test app used by the emulator test
         uses: actions/upload-artifact@v4
@@ -68,7 +90,7 @@ jobs:
           profile: pixel_6
           disable-animations: true
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-          script: bash .github/scripts/emulator-test.sh app-debug.apk testapp-debug.apk
+          script: bash .github/scripts/emulator-test.sh TrackerShield.apk testapp-debug.apk
 
       - name: Upload screenshots and logs
         if: always()
@@ -83,7 +105,7 @@ jobs:
         if: always()
         run: |
           mkdir -p out
-          cp app-debug.apk out/TrackerShield.apk
+          cp TrackerShield.apk signing.txt out/
           cp -r emulator-results out/ 2>/dev/null || true
           cp emulator-test-log.txt out/ 2>/dev/null || true
           echo "commit ${GITHUB_SHA::7} - emulator test: ${{ steps.emulator.outcome }}" > out/STATUS.txt
@@ -106,7 +128,6 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          mv app-debug.apk TrackerShield.apk
           gh release delete latest --yes --cleanup-tag -R "${{ github.repository }}" || true
           gh release create latest TrackerShield.apk -R "${{ github.repository }}" \
             --target "${{ github.sha }}" \

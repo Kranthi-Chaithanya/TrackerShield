@@ -130,8 +130,9 @@ public class AppDetailActivity extends Activity implements BlockLog.Listener {
         List<BlockLog.Record> recs = uid == BlockLog.UNKNOWN_UID && pkg != null
                 ? Collections.<BlockLog.Record>emptyList() : BlockLog.get().recordsFor(uid);
         if (recs.isEmpty()) {
-            para("TrackerShield hasn't seen this app contact any trackers yet. Keep protection on and use the "
-                    + "app as normal; anything it tries will show up here.", Ui.GRAY);
+            para("TrackerShield hasn't seen this app contact any of the " + Settings.blocklist(this).size()
+                    + " tracker addresses it watches. Keep protection on and use the app as normal; anything "
+                    + "it tries will show up here.", Ui.GRAY);
             return;
         }
         int attempts = 0, blocked = 0, background = 0, watched = 0;
