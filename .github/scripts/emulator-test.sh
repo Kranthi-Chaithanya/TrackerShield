@@ -72,6 +72,12 @@ adb install -r -g "$APK" || { fail "install failed"; exit 1; }
 adb shell appops set $PKG ACTIVATE_VPN allow   # stands in for tapping OK on the VPN consent dialog
 adb logcat -c
 
+echo "== Wait for the emulator's internet connection"
+for i in $(seq 1 45); do
+  lookup www.google.com | grep -q "^PING" && { echo "  online after ${i}x2s"; break; }
+  sleep 2
+done
+
 echo "== Before protection: trackers resolve normally"
 expect_resolves app-measurement.com
 expect_resolves www.google.com
