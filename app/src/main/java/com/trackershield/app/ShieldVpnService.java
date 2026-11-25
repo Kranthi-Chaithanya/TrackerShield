@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -64,6 +65,7 @@ public class ShieldVpnService extends VpnService {
     private static final String CHANNEL_ID = "protection";
     private static final int NOTIFICATION_ID = 1;
     private static final long NOTIFICATION_DELAY_MS = 5000;
+    private static final long SAVE_INTERVAL_MS = 30_000;
 
     private static volatile boolean running;
     private static volatile boolean lockdown;
@@ -94,6 +96,15 @@ public class ShieldVpnService extends VpnService {
     private volatile List<InetAddress> upstreamServers = fallbackServers();
     private ConnectivityManager.NetworkCallback networkCallback;
     private volatile Blocklist blocklist;
+    private volatile ConnectivityManager connectivity;
+    private volatile ForegroundWatcher foregroundWatcher;
+    private final Runnable saveHistory = new Runnable() {
+        @Override
+        public void run() {
+            Settings.saveHistoryIfChanged(ShieldVpnService.this);
+            if (running) mainHandler.postDelayed(this, SAVE_INTERVAL_MS);
+        }
+    };
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -137,7 +148,10 @@ public class ShieldVpnService extends VpnService {
     private synchronized void startVpn() {
         if (tun != null) return;
         goForeground();
+        Settings.loadHistory(this);
         blocklist = Settings.blocklist(this);
+        connectivity = getSystemService(ConnectivityManager.class);
+        foregroundWatcher = new ForegroundWatcher(this);
 
         Builder builder = new Builder();
         builder.setSession("TrackerShield");
@@ -201,6 +215,8 @@ public class ShieldVpnService extends VpnService {
         running = true;
         BlockLog.get().changed();
         postNotification();
+        mainHandler.removeCallbacks(saveHistory);
+        mainHandler.postDelayed(saveHistory, SAVE_INTERVAL_MS);
     }
 
     private synchronized void stopVpn() {
@@ -242,6 +258,8 @@ public class ShieldVpnService extends VpnService {
             }
             tun = null;
         }
+        mainHandler.removeCallbacks(saveHistory);
+        Settings.saveHistoryIfChanged(this);
         if (wasRunning) BlockLog.get().changed();
     }
 
@@ -294,7 +312,10 @@ public class ShieldVpnService extends VpnService {
             String owner = list.trackerOwner(q.name);
             if (owner != null) {
                 boolean allowed = list.isAllowed(q.name);
-                BlockLog.get().recordTracker(q.name, owner, !allowed, System.currentTimeMillis());
+                // Ask which app made this lookup while its socket still exists (before we answer).
+                int uid = lookupOwnerUid(q);
+                BlockLog.get().recordTracker(uid, q.name, owner, !allowed, backgroundState(uid),
+                        System.currentTimeMillis());
                 if (!allowed) {
                     byte[] answer = DnsPacket.blockedResponse(q);
                     writeToTun(DnsPacket.buildResponsePacket(q, answer, answer.length));
@@ -306,6 +327,32 @@ public class ShieldVpnService extends VpnService {
             }
         }
         forward(q);
+    }
+
+    /**
+     * Which app made this lookup. Android's DNS resolver sends each lookup from a socket owned
+     * by the app that asked, and a VPN app may ask Android who owns a connection (Android 10+).
+     */
+    private int lookupOwnerUid(DnsPacket.Query q) {
+        ConnectivityManager cm = connectivity;
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q || cm == null) return BlockLog.UNKNOWN_UID;
+        try {
+            return cm.getConnectionOwnerUid(OsConstants.IPPROTO_UDP,
+                    new InetSocketAddress(InetAddress.getByAddress(q.srcIp), q.srcPort),
+                    new InetSocketAddress(InetAddress.getByAddress(q.dstIp), q.dstPort));
+        } catch (IOException | RuntimeException e) {
+            return BlockLog.UNKNOWN_UID;
+        }
+    }
+
+    /** Whether app {@code uid} was on screen, as one of the BlockLog.BG_ values. */
+    private int backgroundState(int uid) {
+        ForegroundWatcher watcher = foregroundWatcher;
+        if (watcher == null || uid < android.os.Process.FIRST_APPLICATION_UID) return BlockLog.BG_UNKNOWN;
+        String onScreen = watcher.foregroundPackage();
+        if (onScreen == null) return BlockLog.BG_UNKNOWN;          // no usage access
+        if (onScreen.isEmpty()) return BlockLog.BG_BACKGROUND;      // screen off, or nothing on screen
+        return Apps.forUid(this, uid).packages.contains(onScreen) ? BlockLog.BG_IN_USE : BlockLog.BG_BACKGROUND;
     }
 
     /** Asks the phone's normal DNS server and hands the answer back to the app. */
@@ -452,14 +499,23 @@ public class ShieldVpnService extends VpnService {
         PendingIntent stop = PendingIntent.getService(this, 1,
                 new Intent(this, ShieldVpnService.class).setAction(ACTION_STOP), PendingIntent.FLAG_IMMUTABLE);
         String text = String.format(Locale.getDefault(), "%,d tracker lookups blocked", BlockLog.get().blocked());
+        BlockLog.Record latest = BlockLog.get().latest();
+        if (latest != null) {
+            text += " · latest: " + Apps.forUid(this, latest.uid).label + " → " + latest.owner;
+        }
+        PendingIntent openApps = PendingIntent.getActivity(this, 2,
+                new Intent(this, AppsActivity.class), PendingIntent.FLAG_IMMUTABLE);
         return new Notification.Builder(this, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_shield)
                 .setContentTitle("Tracker protection is on")
                 .setContentText(text)
+                .setStyle(new Notification.BigTextStyle().bigText(text))
                 .setContentIntent(open)
                 .setOngoing(true)
                 .setOnlyAlertOnce(true)
                 .setShowWhen(false)
+                .addAction(new Notification.Action.Builder(
+                        Icon.createWithResource(this, R.drawable.ic_shield), "Which apps?", openApps).build())
                 .addAction(new Notification.Action.Builder(
                         Icon.createWithResource(this, R.drawable.ic_shield), "Turn off", stop).build())
                 .build();

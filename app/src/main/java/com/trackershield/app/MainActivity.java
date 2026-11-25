@@ -138,6 +138,16 @@ public class MainActivity extends Activity implements BlockLog.Listener {
         root.addView(toggle, new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
+        Button whichApps = new Button(this);
+        whichApps.setText("Which apps are tracking me?");
+        whichApps.setTextColor(Color.WHITE);
+        whichApps.getBackground().setTint(0xFF0F766E);
+        whichApps.setOnClickListener(v -> startActivity(new Intent(this, AppsActivity.class)));
+        LinearLayout.LayoutParams whichParams = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        whichParams.topMargin = dp(4);
+        root.addView(whichApps, whichParams);
+
         stats = text("", 15, false);
         stats.setPadding(0, dp(12), 0, 0);
         root.addView(stats);
@@ -283,31 +293,7 @@ public class MainActivity extends Activity implements BlockLog.Listener {
     }
 
     private void onEntryTapped(BlockLog.Entry entry) {
-        final String domain = entry.domain;
-        if (blocklist.isAllowed(domain)) {
-            Set<String> allowed = Settings.getSet(this, Settings.KEY_ALLOWED);
-            for (Iterator<String> it = allowed.iterator(); it.hasNext(); ) {
-                String a = it.next();
-                if (domain.equals(a) || domain.endsWith("." + a)) it.remove();
-            }
-            Settings.putSet(this, Settings.KEY_ALLOWED, allowed);
-            toast("Blocking " + domain + " again. Apps may take a few minutes to notice.");
-            adapter.notifyDataSetChanged();
-            return;
-        }
-        new AlertDialog.Builder(this)
-                .setTitle("Allow " + domain + "?")
-                .setMessage("Apps will be able to send data to " + entry.owner + " through this address again.\n\n"
-                        + "Only do this if an app stopped working properly. You can block it again by tapping it.")
-                .setPositiveButton("Allow", (d, w) -> {
-                    Set<String> allowed = Settings.getSet(this, Settings.KEY_ALLOWED);
-                    allowed.add(domain);
-                    Settings.putSet(this, Settings.KEY_ALLOWED, allowed);
-                    toast("Allowed " + domain);
-                    adapter.notifyDataSetChanged();
-                })
-                .setNegativeButton("Keep blocked", null)
-                .show();
+        Ui.toggleDomain(this, entry.domain, entry.owner, adapter::notifyDataSetChanged);
     }
 
     private void showSkipAppsDialog() {
@@ -408,7 +394,15 @@ public class MainActivity extends Activity implements BlockLog.Listener {
                 adapter.notifyDataSetChanged();
                 return true;
             case MENU_CLEAR:
-                BlockLog.get().clear();
+                new AlertDialog.Builder(this)
+                        .setTitle("Clear all history?")
+                        .setMessage("This deletes the record of which apps contacted which trackers.")
+                        .setPositiveButton("Clear", (d, w) -> {
+                            BlockLog.get().clear();
+                            Settings.saveHistoryIfChanged(this);
+                        })
+                        .setNegativeButton("Cancel", null)
+                        .show();
                 return true;
             case MENU_HELP:
                 new AlertDialog.Builder(this)
@@ -419,6 +413,10 @@ public class MainActivity extends Activity implements BlockLog.Listener {
                                 + " known tracking and advertising domains, so the data never leaves.\n\n"
                                 + "Everything else works normally and is not slowed down: only the lookups pass "
                                 + "through TrackerShield, and nothing is sent to us or to any VPN company.\n\n"
+                                + "\"Which apps are tracking me?\" shows, for each app: which tracking companies it "
+                                + "tried to reach and how often, how much of that happened while you weren't using "
+                                + "it, which tracking libraries are built into its code, and what it can access. "
+                                + "Naming the app needs Android 10 or newer.\n\n"
                                 + "If an app misbehaves, tap its tracker in the list to allow it, or add the app "
                                 + "under \"Apps to skip\".\n\n"
                                 + "Limits: an app that uses its own private lookup system or hard-coded addresses "
@@ -484,9 +482,16 @@ public class MainActivity extends Activity implements BlockLog.Listener {
             BlockLog.Entry e = items.get(position);
             boolean allowed = blocklist.isAllowed(e.domain);
             line1.setText(e.domain);
-            line2.setText(String.format(Locale.getDefault(), "%s · %s · %d× · last at %s",
+            List<String> apps = new ArrayList<>();
+            for (int uid : e.uids) {
+                if (apps.size() == 2) break;
+                apps.add(Apps.forUid(MainActivity.this, uid).label);
+            }
+            String byApps = apps.isEmpty() ? "" : " · by " + TextUtils.join(", ", apps)
+                    + (e.uids.size() > 2 ? " +" + (e.uids.size() - 2) : "");
+            line2.setText(String.format(Locale.getDefault(), "%s · %s · %d× · last at %s%s",
                     allowed ? "ALLOWED by you" : "BLOCKED", e.owner, e.count,
-                    timeFormat.format(new Date(e.lastSeen))));
+                    timeFormat.format(new Date(e.lastSeen)), byApps));
             line2.setTextColor(allowed ? GREEN : RED);
             return v;
         }

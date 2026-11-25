@@ -1,12 +1,15 @@
 #!/usr/bin/env bash
 # Installs TrackerShield on an Android emulator, turns protection on by tapping the real button,
-# and checks that tracker lookups are blocked while normal sites still work.
-# Usage: emulator-test.sh path/to/app-debug.apk
+# checks that tracker lookups are blocked while normal sites still work, and checks the per-app
+# report using a test app ("Tracker Demo") that contacts trackers on screen and in the background.
+# Usage: emulator-test.sh path/to/app-debug.apk path/to/testapp-debug.apk
 set -uo pipefail
 exec > >(tee emulator-test-log.txt) 2>&1   # keep a copy of everything printed
 
 APK="$1"
+DEMO_APK="$2"
 PKG=com.trackershield.app
+DEMO=com.trackershield.demo
 OUT=emulator-results
 mkdir -p "$OUT"
 FAILS=0
@@ -40,6 +43,15 @@ on_screen() {  # on_screen MODE TEXT  (MODE = exact|contains)
   dump_ui check && python3 /tmp/find_on_screen.py "$OUT/ui-check.xml" "$1" "$2" >/dev/null
 }
 
+expect_on_screen() {  # expect_on_screen MODE TEXT DESCRIPTION
+  if on_screen "$1" "$2"; then pass "$3"; else fail "$3 ('$2' not on screen)"; fi
+}
+
+wait_for_screen() {  # wait_for_screen MODE TEXT SECONDS
+  for _ in $(seq 1 "$3"); do on_screen "$1" "$2" && return 0; sleep 1; done
+  return 1
+}
+
 tap() {  # tap MODE TEXT
   dump_ui tap || { fail "could not read the screen"; return 1; }
   local xy
@@ -69,12 +81,14 @@ echo "== Install"
 adb wait-for-device
 adb shell settings put global window_animation_scale 0 || true
 adb install -r -g "$APK" || { fail "install failed"; exit 1; }
-adb shell appops set $PKG ACTIVATE_VPN allow   # stands in for tapping OK on the VPN consent dialog
+adb install -r -g "$DEMO_APK" || { fail "demo install failed"; exit 1; }
+adb shell appops set $PKG ACTIVATE_VPN allow      # stands in for tapping OK on the VPN consent dialog
+adb shell appops set $PKG GET_USAGE_STATS allow   # stands in for the user turning on "Usage access"
 adb logcat -c
 
 echo "== Wait for the emulator's internet connection"
 for i in $(seq 1 45); do
-  lookup www.google.com | grep -q "^PING" && { echo "  online after ${i}x2s"; break; }
+  if lookup www.google.com | grep -q "^PING"; then echo "  online"; break; fi
   sleep 2
 done
 
@@ -86,7 +100,7 @@ echo "== Open the app"
 adb shell am start -W -n $PKG/.MainActivity
 sleep 4
 shot 1-app-opened
-on_screen contains "protection is off" && pass "app shows Protection is OFF" || fail "app screen not shown"
+expect_on_screen contains "protection is off" "app shows Protection is OFF"
 
 echo "== Tap 'Turn protection on'"
 tap exact "turn protection on"
@@ -105,23 +119,64 @@ expect_resolves www.google.com
 expect_resolves www.wikipedia.org
 expect_resolves fcm.googleapis.com
 
-expect_blocked app-measurement.com   # looked up again, so it is the newest row, at the top of the list
-sleep 2
-shot 2-protection-on
-on_screen contains "protection is on" && pass "app shows Protection is ON" || fail "app does not show ON"
-on_screen exact "app-measurement.com" && pass "blocked tracker listed on screen" || fail "tracker missing from list"
+echo "== A real app with trackers: Tracker Demo, first on screen, then in the background"
+adb shell am start -W -n $DEMO/.DemoActivity
+sleep 10
+shot 2-demo-app
+adb shell input keyevent KEYCODE_HOME
+sleep 13
+adb shell am force-stop $DEMO
+adb logcat -d -s TrackerDemo | tail -8
+
+echo "== Main screen names the apps"
+adb shell am start -W -n $PKG/.MainActivity
+sleep 3
+shot 3-protection-on
+expect_on_screen contains "protection is on" "app shows Protection is ON"
+expect_on_screen contains "by tracker demo" "tracker rows name the app that made the lookup"
 adb shell dumpsys notification --noredact > "$OUT/notifications.txt" 2>&1
 grep -q "tracker lookups blocked" "$OUT/notifications.txt" && pass "status notification shown" || echo "note: notification text not found"
 
+echo "== 'Which apps are tracking me?'"
+tap exact "which apps are tracking me?"
+if wait_for_screen contains "finished checking" 240; then pass "checked installed apps for built-in tracking code"; else fail "app check did not finish"; fi
+sleep 2
+shot 4-which-apps
+expect_on_screen exact "tracker demo" "Tracker Demo is listed"
+expect_on_screen contains "while you weren't using it" "background tracking is reported"
+expect_on_screen contains "built-in trackers (3)" "3 built-in trackers found in Tracker Demo"
+expect_on_screen exact "shell" "lookups from the command line are named too"
+
+echo "== Tracker Demo details"
+tap exact "tracker demo"
+sleep 3
+shot 5-app-detail
+expect_on_screen contains "tried to send data to 4 tracking companies" "detail: companies counted"
+expect_on_screen contains "happened while you weren't using the app" "detail: background share shown"
+expect_on_screen contains "appsflyer" "detail: AppsFlyer attempts listed"
+adb shell input swipe 540 1900 540 500 400
+sleep 2
+adb shell input swipe 540 1900 540 500 400
+sleep 2
+shot 6-app-detail-more
+expect_on_screen contains "attribution: appsflyer" "detail: AppsFlyer built in (Attribution)"
+expect_on_screen contains "analytics: facebook analytics, google firebase analytics" "detail: analytics libraries built in"
+adb shell input keyevent KEYCODE_BACK
+sleep 1
+adb shell input keyevent KEYCODE_BACK
+sleep 2
+
 echo "== Allow one tracker by tapping it"
+expect_blocked app-measurement.com   # looked up again, so it is the newest row, at the top of the list
+sleep 2
+expect_on_screen exact "app-measurement.com" "blocked tracker listed on screen"
 tap exact "app-measurement.com"
 sleep 1
-shot 3-allow-dialog
+shot 7-allow-dialog
 tap exact "allow"
 sleep 2
 expect_resolves app-measurement.com
 expect_blocked graph.facebook.com
-shot 4-after-allow
 
 echo "== Tap 'Turn protection off'"
 tap exact "turn protection off"
@@ -129,7 +184,17 @@ for _ in $(seq 1 10); do vpn_up || break; sleep 1; done
 vpn_up && fail "VPN still up after turning off" || pass "VPN stopped"
 sleep 2
 expect_resolves graph.facebook.com
-shot 5-protection-off
+shot 8-protection-off
+
+echo "== History survives an app restart"
+sleep 2
+adb shell am force-stop $PKG
+adb shell am start -W -n $PKG/.MainActivity
+sleep 3
+tap exact "which apps are tracking me?"
+sleep 4
+expect_on_screen exact "tracker demo" "Tracker Demo still listed after restart"
+shot 9-after-restart
 
 echo "== Crash check"
 adb logcat -d > "$OUT/logcat.txt"
@@ -139,7 +204,7 @@ if grep -A20 "FATAL EXCEPTION" "$OUT/logcat.txt" | grep -q "$PKG"; then
 else
   pass "no crashes"
 fi
-grep "TrackerShield" "$OUT/logcat.txt" | head -40 || true
+grep -E "TrackerShield|AndroidRuntime" "$OUT/logcat.txt" | grep -v ConnectivityService | head -40 || true
 
 echo
 if [ "$FAILS" -eq 0 ]; then echo "ALL EMULATOR CHECKS PASSED"; else echo "$FAILS CHECK(S) FAILED"; fi

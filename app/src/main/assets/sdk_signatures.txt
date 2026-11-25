@@ -1,0 +1,121 @@
+# Tracking libraries (SDKs) that apps build in, found by their Java package names.
+# Format: package.prefix.|Library name|Category
+# Categories: Advertising, Analytics, Attribution, Profiling, Crash reporting,
+#             Session recording, Location, Advertising ID
+# A prefix also matches everything below it (com.appsflyer. matches com.appsflyer.internal.X).
+
+# --- Google ---
+com.google.firebase.analytics.|Google Firebase Analytics|Analytics
+com.google.android.gms.measurement.|Google Firebase Analytics|Analytics
+com.google.android.gms.analytics.|Google Analytics|Analytics
+com.google.android.gms.tagmanager.|Google Tag Manager|Analytics
+com.google.android.gms.ads.identifier.|Reads your Advertising ID|Advertising ID
+com.google.android.gms.ads.|Google AdMob|Advertising
+com.google.ads.|Google AdMob|Advertising
+com.google.firebase.crashlytics.|Google Crashlytics|Crash reporting
+com.crashlytics.|Google Crashlytics|Crash reporting
+com.google.firebase.perf.|Google Firebase Performance|Analytics
+
+# --- Meta / Facebook ---
+com.facebook.appevents.|Facebook Analytics|Analytics
+com.facebook.ads.|Facebook Audience Network|Advertising
+com.facebook.login.|Facebook Login|Profiling
+com.facebook.share.|Facebook Share|Profiling
+
+# --- Install tracking (attribution) ---
+com.appsflyer.|AppsFlyer|Attribution
+com.adjust.sdk.|Adjust|Attribution
+io.branch.|Branch|Attribution
+com.kochava.|Kochava|Attribution
+com.singular.sdk.|Singular|Attribution
+com.tenjin.android.|Tenjin|Attribution
+io.airbridge.|Airbridge|Attribution
+
+# --- Analytics ---
+com.mixpanel.|Mixpanel|Analytics
+com.amplitude.|Amplitude|Analytics
+com.segment.analytics.|Segment|Analytics
+com.flurry.|Yahoo Flurry|Analytics
+com.localytics.|Localytics|Analytics
+com.heapanalytics.|Heap|Analytics
+com.newrelic.agent.|New Relic|Analytics
+com.microsoft.appcenter.analytics.|Microsoft App Center Analytics|Analytics
+com.yandex.metrica.|Yandex AppMetrica|Analytics
+io.appmetrica.analytics.|Yandex AppMetrica|Analytics
+com.umeng.|Umeng (Alibaba)|Analytics
+com.apxor.|Apxor|Analytics
+com.comscore.|comScore|Analytics
+com.quantcast.|Quantcast|Analytics
+com.nielsen.app.sdk.|Nielsen|Analytics
+com.adobe.marketing.mobile.|Adobe Experience Platform|Analytics
+com.adobe.mobile.|Adobe Analytics|Analytics
+com.huawei.hms.analytics.|Huawei Analytics|Analytics
+com.appdynamics.eumagent.|AppDynamics|Analytics
+com.dynatrace.android.agent.|Dynatrace|Analytics
+com.datadog.android.rum.|Datadog RUM|Analytics
+com.moat.analytics.|Oracle Moat|Analytics
+com.integralads.|Integral Ad Science|Analytics
+
+# --- Marketing profiles and targeted messages ---
+com.clevertap.android.sdk.|CleverTap|Profiling
+com.moengage.|MoEngage|Profiling
+com.webengage.sdk.|WebEngage|Profiling
+com.netcore.android.|Netcore Smartech|Profiling
+com.braze.|Braze|Profiling
+com.appboy.|Braze|Profiling
+com.leanplum.|Leanplum|Profiling
+com.swrve.|Swrve|Profiling
+com.onesignal.|OneSignal|Profiling
+com.urbanairship.|Airship|Profiling
+com.batch.android.|Batch|Profiling
+com.pushwoosh.|Pushwoosh|Profiling
+
+# --- Records your screen, taps and swipes ---
+com.userexperior.|UserExperior|Session recording
+com.uxcam.|UXCam|Session recording
+com.smartlook.|Smartlook|Session recording
+com.fullstory.|FullStory|Session recording
+com.contentsquare.|Contentsquare|Session recording
+com.microsoft.clarity.|Microsoft Clarity|Session recording
+
+# --- Crash reporting (also sends device details) ---
+com.bugsnag.|Bugsnag|Crash reporting
+io.sentry.|Sentry|Crash reporting
+com.instabug.|Instabug|Crash reporting
+com.microsoft.appcenter.crashes.|Microsoft App Center Crashes|Crash reporting
+
+# --- Advertising ---
+com.applovin.|AppLovin|Advertising
+com.unity3d.ads.|Unity Ads|Advertising
+com.unity3d.services.|Unity Ads|Advertising
+com.ironsource.|ironSource|Advertising
+com.vungle.|Vungle|Advertising
+com.chartboost.|Chartboost|Advertising
+com.inmobi.|InMobi|Advertising
+com.adcolony.|AdColony|Advertising
+com.tapjoy.|Tapjoy|Advertising
+com.mopub.|MoPub|Advertising
+com.startapp.|Start.io|Advertising
+com.mbridge.msdk.|Mintegral|Advertising
+com.mintegral.msdk.|Mintegral|Advertising
+com.fyber.|Fyber|Advertising
+com.smaato.|Smaato|Advertising
+com.appodeal.|Appodeal|Advertising
+com.bytedance.sdk.openadsdk.|Pangle (ByteDance)|Advertising
+com.amazon.device.ads.|Amazon Ads|Advertising
+com.amazon.aps.|Amazon Ads|Advertising
+com.criteo.|Criteo|Advertising
+com.taboola.|Taboola|Advertising
+com.outbrain.|Outbrain|Advertising
+com.huawei.hms.ads.|Huawei Ads|Advertising
+com.ogury.|Ogury|Advertising
+com.my.target.|VK myTarget|Advertising
+
+# --- Location data collection ---
+com.foursquare.pilgrim.|Foursquare Pilgrim|Location
+io.radar.sdk.|Radar|Location
+com.cuebiq.|Cuebiq|Location
+com.inmarket.|InMarket|Location
+com.gimbal.|Gimbal|Location
+io.huq.|Huq|Location
+com.tutelatechnologies.|Tutela|Location

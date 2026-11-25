@@ -21,6 +21,26 @@ only carries these lookups:
 The screen shows a live list of the trackers each lookup tried to reach and which companies were
 blocked most.
 
+## Which apps are tracking you
+
+Tap **Which apps are tracking me?** to see the apps ranked by how much they track you. Tap an app
+to see the full details:
+
+* **Tracking attempts on this phone:** every tracking company the app tried to send data to, which
+  addresses, how many times, and when. Naming the app needs Android 10 or newer.
+* **While you weren't using it:** how many attempts happened in the background or with the screen
+  off. Turn on **Usage access** for TrackerShield when the app asks (Android Settings > Apps >
+  Special app access > Usage access). Without it, this part is left out.
+* **Tracking code built into the app:** TrackerShield reads the class names in each installed app's
+  code and finds 90 known tracking libraries, such as AppsFlyer, Firebase Analytics, the Facebook
+  SDK, CleverTap, MoEngage and AppLovin. This shows what an app is able to do, even before it
+  does it.
+* **What it can access:** location, contacts, microphone, camera, texts, call history and other
+  sensitive permissions you have given it, with a button to change them or uninstall the app.
+
+The history is saved on your phone and kept when you restart. **Clear list and counters** in the
+⋮ menu deletes it.
+
 ## Get the app onto your phone
 
 You have to build the source code into an installable `.apk` file once. Choose one of these:
@@ -95,14 +115,21 @@ line) and rebuild.
 
 ```
 app/src/main/java/com/trackershield/app/
-  ShieldVpnService.java   the local VPN: reads DNS lookups, blocks or forwards them
+  ShieldVpnService.java   the local VPN: reads DNS lookups, names the app, blocks or forwards them
   DnsPacket.java          reads and builds IPv4/UDP/DNS packets
   Blocklist.java          tracker list matching, your allowed and blocked domains
-  BlockLog.java           live list and counters
-  Settings.java           saved choices
-  MainActivity.java       the screen
-app/src/main/assets/trackers.txt   the tracker list
-.github/workflows/build-apk.yml    automatic APK build on GitHub
+  BlockLog.java           per-app tracking history, saved to a file
+  DexScanner.java         finds tracking libraries inside an app's code
+  AppScanner.java         checks installed apps (only new or updated ones after the first time)
+  ForegroundWatcher.java  tells whether an app was on screen (with Usage access)
+  Apps.java               app names, icons and permissions
+  MainActivity.java       main screen
+  AppsActivity.java       "Which apps are tracking me?"
+  AppDetailActivity.java  one app's full report
+app/src/main/assets/trackers.txt         tracker domains
+app/src/main/assets/sdk_signatures.txt   tracking libraries
+testapp/                           "Tracker Demo", used only by the automated test
+.github/workflows/build-apk.yml    builds the APK, tests it on an emulator, publishes the release
 ```
 
 The app uses only built-in Android features and no outside libraries.
