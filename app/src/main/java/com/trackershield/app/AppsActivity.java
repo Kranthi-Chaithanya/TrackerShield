@@ -183,7 +183,7 @@ public class AppsActivity extends Activity implements BlockLog.Listener, AppScan
                     AppScanner.total(), now.isEmpty() ? "" : " (" + now + ")"));
         } else if (AppScanner.hasFinished()) {
             scanStatus.setText(String.format(Locale.getDefault(),
-                    "Finished checking %d apps for built-in tracking code.", launcherApps.size()));
+                    "Finished checking %d apps for built-in tracking code.", AppScanner.total()));
         } else {
             scanStatus.setText("");
         }
@@ -195,9 +195,10 @@ public class AppsActivity extends Activity implements BlockLog.Listener, AppScan
             if (r.attempts() > 0) tracking++;
             if (r.sdkCount() > 0) withSdks++;
         }
+        String tried = tracking == 1 ? "1 app tried" : tracking + " apps tried";
+        String built = withSdks == 1 ? "1 app has" : withSdks + " apps have";
         summary.setText(rows.isEmpty() ? "Nothing found yet. Keep protection on and use your apps."
-                : String.format(Locale.getDefault(), "%d app(s) tried to contact trackers. %d app(s) have tracking "
-                        + "code built in.", tracking, withSdks));
+                : tried + " to contact trackers. " + built + " tracking code built in.");
         adapter.setRows(rows);
     }
 
@@ -340,7 +341,9 @@ public class AppsActivity extends Activity implements BlockLog.Listener, AppScan
             }
 
             if (r.sdks == null) {
-                h.sdks.setText(r.pkg == null ? "" : "Not checked for built-in tracking code yet");
+                // Parts of Android itself aren't checked; say "not yet" only while a check may still come.
+                boolean pending = AppScanner.isRunning() || !AppScanner.hasFinished();
+                h.sdks.setText(r.pkg != null && pending ? "Not checked for built-in tracking code yet" : "");
                 h.sdks.setTextColor(Ui.GRAY);
             } else if (r.sdks.isEmpty()) {
                 h.sdks.setText("No known tracking code built in");

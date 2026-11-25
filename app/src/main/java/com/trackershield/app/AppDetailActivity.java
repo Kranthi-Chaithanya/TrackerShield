@@ -210,7 +210,9 @@ public class AppDetailActivity extends Activity implements BlockLog.Listener {
         }
         AppScanner.Result res = AppScanner.resultFor(this, pkg);
         if (res == null) {
-            para("Not checked yet. Open \"Which apps track me\" and TrackerShield will check every app.", Ui.GRAY);
+            para(AppScanner.isRunning() || !AppScanner.hasFinished()
+                    ? "Not checked yet. Open \"Which apps track me\" and TrackerShield will check every app."
+                    : "This is part of Android itself, so its code wasn't checked.", Ui.GRAY);
             return;
         }
         if (res.sdks.isEmpty()) {

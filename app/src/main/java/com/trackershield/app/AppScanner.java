@@ -127,7 +127,21 @@ final class AppScanner {
         load(c);
         DexScanner scanner = Settings.dexScanner(c);
         PackageManager pm = c.getPackageManager();
-        List<ApplicationInfo> apps = Apps.launcherApps(c);
+        // Apps on the home screen, plus any other installed app seen contacting trackers
+        // (for example a background service with no icon).
+        List<ApplicationInfo> apps = new ArrayList<>(Apps.launcherApps(c));
+        Set<String> listed = new HashSet<>();
+        for (ApplicationInfo ai : apps) listed.add(ai.packageName);
+        for (BlockLog.AppSummary seen : BlockLog.get().apps()) {
+            if (seen.uid < android.os.Process.FIRST_APPLICATION_UID) continue;
+            for (String p : Apps.forUid(c, seen.uid).packages) {
+                if (p.equals(c.getPackageName()) || !listed.add(p)) continue;
+                try {
+                    apps.add(pm.getApplicationInfo(p, 0));
+                } catch (PackageManager.NameNotFoundException ignored) {
+                }
+            }
+        }
         total = apps.size();
         done = 0;
         changed();

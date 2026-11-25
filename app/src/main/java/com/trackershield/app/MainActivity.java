@@ -7,6 +7,7 @@ import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.net.ConnectivityManager;
@@ -141,7 +142,8 @@ public class MainActivity extends Activity implements BlockLog.Listener {
         Button whichApps = new Button(this);
         whichApps.setText("Which apps are tracking me?");
         whichApps.setTextColor(Color.WHITE);
-        whichApps.getBackground().setTint(0xFF0F766E);
+        // Tint only this button (tinting getBackground() directly would recolour every button in the app).
+        whichApps.setBackgroundTintList(ColorStateList.valueOf(0xFF0F766E));
         whichApps.setOnClickListener(v -> startActivity(new Intent(this, AppsActivity.class)));
         LinearLayout.LayoutParams whichParams = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
