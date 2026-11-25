@@ -1,0 +1,148 @@
+== Install
+Performing Streamed Install
+Success
+Performing Streamed Install
+Success
+== Let the emulator settle after starting up
+== Wait for the emulator's internet connection
+  online
+== Before protection: trackers resolve normally
+  app-measurement.com -> PING app-measurement.com (142.251.45.142) 56(84) bytes of data.
+PASS: app-measurement.com resolves
+  www.google.com -> PING www.google.com (142.251.154.119) 56(84) bytes of data.
+PASS: www.google.com resolves
+== Open the app
+Starting: Intent { cmp=com.trackershield.app/.MainActivity }
+Status: ok
+LaunchState: COLD
+Activity: com.trackershield.app/.MainActivity
+TotalTime: 1508
+WaitTime: 1511
+Complete
+PASS: app shows Protection is OFF
+== Tap 'Turn protection on'
+PASS: VPN interface tun0 is up with 10.111.222.1
+PASS: service runs in the foreground
+== With protection: trackers blocked, normal sites work
+  app-measurement.com -> ping: unknown host app-measurement.com
+PASS: app-measurement.com blocked
+  region1.app-measurement.com -> ping: unknown host region1.app-measurement.com
+PASS: region1.app-measurement.com blocked
+  graph.facebook.com -> ping: unknown host graph.facebook.com
+PASS: graph.facebook.com blocked
+  googleads.g.doubleclick.net -> ping: unknown host googleads.g.doubleclick.net
+PASS: googleads.g.doubleclick.net blocked
+  api2.amplitude.com -> ping: unknown host api2.amplitude.com
+PASS: api2.amplitude.com blocked
+  www.google.com -> PING www.google.com (142.251.153.119) 56(84) bytes of data.
+PASS: www.google.com resolves
+  www.wikipedia.org -> PING dyna.wikimedia.org (198.35.26.224) 56(84) bytes of data.
+PASS: www.wikipedia.org resolves
+  fcm.googleapis.com -> PING fcm.googleapis.com (216.239.38.57) 56(84) bytes of data.
+PASS: fcm.googleapis.com resolves
+== A real app with trackers: Tracker Demo, first on screen, then in the background
+Starting: Intent { cmp=com.trackershield.demo/.DemoActivity }
+Status: ok
+LaunchState: COLD
+Activity: com.trackershield.demo/.DemoActivity
+TotalTime: 1376
+WaitTime: 1381
+Complete
+11-25 14:31:20.454  5254  5286 I TrackerDemo: graph.facebook.com blocked
+11-25 14:31:20.458  5254  5286 I TrackerDemo: api.mixpanel.com blocked
+11-25 14:31:20.463  5254  5286 I TrackerDemo: o4504.ingest.us.sentry.io blocked
+11-25 14:31:23.467  5254  5286 I TrackerDemo: app-measurement.com blocked
+11-25 14:31:23.471  5254  5286 I TrackerDemo: t.appsflyer.com blocked
+11-25 14:31:23.474  5254  5286 I TrackerDemo: graph.facebook.com blocked
+11-25 14:31:23.478  5254  5286 I TrackerDemo: api.mixpanel.com blocked
+11-25 14:31:23.482  5254  5286 I TrackerDemo: o4504.ingest.us.sentry.io blocked
+== Main screen names the apps
+Starting: Intent { cmp=com.trackershield.app/.MainActivity }
+Warning: Activity not started, its current task has been brought to the front
+Status: ok
+LaunchState: HOT
+Activity: com.trackershield.app/.MainActivity
+TotalTime: 199
+WaitTime: 225
+Complete
+PASS: app shows Protection is ON
+PASS: tracker rows name the app that made the lookup
+PASS: status notification shown
+== 'Which apps are tracking me?'
+PASS: checked installed apps for built-in tracking code
+PASS: Tracker Demo is listed
+PASS: background tracking is reported
+PASS: 4 built-in trackers found in Tracker Demo
+PASS: lookups from the command line are named too
+== Tracker Demo details
+PASS: detail: companies counted (incl. Sentry)
+PASS: detail: background share shown
+PASS: detail: AppsFlyer attempts listed
+PASS: detail: AppsFlyer built in (Attribution)
+PASS: detail: analytics libraries built in
+PASS: detail: Sentry built in (Crash reporting)
+== Allow one tracker by tapping it
+  app-measurement.com -> ping: unknown host app-measurement.com
+PASS: app-measurement.com blocked
+PASS: blocked tracker listed on screen
+  app-measurement.com -> PING app-measurement.com (173.194.43.101) 56(84) bytes of data.
+PASS: app-measurement.com resolves
+  graph.facebook.com -> ping: unknown host graph.facebook.com
+PASS: graph.facebook.com blocked
+== Tap 'Turn protection off'
+PASS: VPN stopped
+  graph.facebook.com -> PING star.c10r.facebook.com (57.144.216.141) 56(84) bytes of data.
+PASS: graph.facebook.com resolves
+== History survives an app restart
+Starting: Intent { cmp=com.trackershield.app/.MainActivity }
+Status: ok
+LaunchState: COLD
+Activity: com.trackershield.app/.MainActivity
+TotalTime: 1257
+WaitTime: 1282
+Complete
+PASS: Tracker Demo still listed after restart
+== Crash check
+PASS: no crashes
+11-25 14:30:45.437  4665  4665 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-25 14:30:45.451  4665  4665 I AndroidRuntime: Using default boot image
+11-25 14:30:45.451  4665  4665 I AndroidRuntime: Leaving lock profiling enabled
+11-25 14:30:45.618  4665  4665 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+11-25 14:30:46.711  4665  4665 D AndroidRuntime: Shutting down VM
+11-25 14:30:54.093  4977  4977 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-25 14:30:54.106  4977  4977 I AndroidRuntime: Using default boot image
+11-25 14:30:54.106  4977  4977 I AndroidRuntime: Leaving lock profiling enabled
+11-25 14:30:54.426  4977  4977 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+11-25 14:30:55.545  4977  4977 D AndroidRuntime: Shutting down VM
+11-25 14:30:56.602  5035  5035 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-25 14:30:56.608  5035  5035 I AndroidRuntime: Using default boot image
+11-25 14:30:56.608  5035  5035 I AndroidRuntime: Leaving lock profiling enabled
+11-25 14:30:56.747  5035  5035 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+11-25 14:30:57.894  5035  5035 D AndroidRuntime: Shutting down VM
+11-25 14:30:59.747   523   541 I GnssNetworkConnectivityHandler: updateNetworkState, state=CLOSED, connected=true, network=102, capabilities=[ Transports: WIFI|VPN Capabilities: NOT_METERED&INTERNET&NOT_RESTRICTED&TRUSTED&VALIDATED&NOT_ROAMING&FOREGROUND&NOT_CONGESTED&NOT_SUSPENDED&NOT_VCN_MANAGED LinkUpBandwidth>=12000Kbps LinkDnBandwidth>=30000Kbps TransportInfo: <VpnTransportInfo{type=1, sessionId=TrackerShield, bypassable=false longLivedTcpConnectionsExpensive=false}> Uids: <{0-10191, 10193-20191, 20193-99999}> AdminUids: [10192] UnderlyingNetworks: [100]], availableNetworkCount: 3
+11-25 14:31:29.413  5966  5966 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-25 14:31:29.417  5966  5966 I AndroidRuntime: Using default boot image
+11-25 14:31:29.417  5966  5966 I AndroidRuntime: Leaving lock profiling enabled
+11-25 14:31:29.534  5966  5966 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+11-25 14:31:30.594  5966  5966 D AndroidRuntime: Shutting down VM
+11-25 14:31:31.574  5986  5986 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-25 14:31:31.578  5986  5986 I AndroidRuntime: Using default boot image
+11-25 14:31:31.578  5986  5986 I AndroidRuntime: Leaving lock profiling enabled
+11-25 14:31:31.665  5986  5986 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+11-25 14:31:32.710  5986  5986 D AndroidRuntime: Shutting down VM
+11-25 14:31:33.972  6035  6035 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-25 14:31:33.982  6035  6035 I AndroidRuntime: Using default boot image
+11-25 14:31:33.984  6035  6035 I AndroidRuntime: Leaving lock profiling enabled
+11-25 14:31:34.128  6035  6035 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+11-25 14:31:35.193  6035  6035 D AndroidRuntime: Shutting down VM
+11-25 14:31:37.273  6065  6065 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-25 14:31:37.289  6065  6065 I AndroidRuntime: Using default boot image
+11-25 14:31:37.289  6065  6065 I AndroidRuntime: Leaving lock profiling enabled
+11-25 14:31:37.456  6065  6065 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+11-25 14:31:42.484  6065  6065 D AndroidRuntime: Shutting down VM
+11-25 14:31:44.686  6085  6085 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-25 14:31:44.690  6085  6085 I AndroidRuntime: Using default boot image
+11-25 14:31:44.690  6085  6085 I AndroidRuntime: Leaving lock profiling enabled
+11-25 14:31:44.783  6085  6085 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+
+ALL EMULATOR CHECKS PASSED

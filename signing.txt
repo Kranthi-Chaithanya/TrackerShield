@@ -1,0 +1,2 @@
+signed with a temporary test key (no permanent key set up)
+V2 Signer: certificate SHA-256 digest: 42c6c6d3e95665fb339ce09285ea3783c066e8f933a806bdfc136729885a740c

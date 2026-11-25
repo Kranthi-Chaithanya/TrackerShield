@@ -1,0 +1,37 @@
+ACTIVITY MANAGER SERVICES (dumpsys activity services)
+  User 0 active services:
+  * ServiceRecord{2b1ce36 u0 com.trackershield.app/.ShieldVpnService}
+    intent={act=com.trackershield.app.START cmp=com.trackershield.app/.ShieldVpnService}
+    packageName=com.trackershield.app
+    processName=com.trackershield.app
+    permission=android.permission.BIND_VPN_SERVICE
+    baseDir=/data/app/~~FkujRmKAqek1aS8j8a-NTQ==/com.trackershield.app-x9yPSo6oxhq_-fZ17nfZlA==/base.apk
+    dataDir=/data/user/0/com.trackershield.app
+    app=ProcessRecord{e843733 4711:com.trackershield.app/u0a192}
+    mAllowWhileInUsePermissionInFgsReason=PROC_STATE_TOP
+    allowUiJobScheduling=false
+    recentCallingPackage=android
+    recentCallingUid=10192
+    allowStartForeground=PROC_STATE_TOP
+    startForegroundCount=1
+    infoAllowStartForeground=[callingPackage: com.trackershield.app; callingUid: 10192; uidState: TOP ; uidBFSL: [BFSL]; intent: Intent { act=com.trackershield.app.START cmp=com.trackershield.app/.ShieldVpnService }; code:PROC_STATE_TOP; tempAllowListReason:<null>; targetSdkVersion:34; callerTargetSdkVersion:34; startForegroundCount:0; bindFromPackage:null: isBindService:false]
+    isForeground=true foregroundId=1 types=40000000 foregroundNoti=Notification(channel=protection shortcut=null contentView=null vibrate=null sound=null defaults=0x0 flags=0x6a color=0x00000000 actions=2 vis=PRIVATE)
+    createTime=-1s149ms startingBgTimeout=--
+    lastActivity=-971ms restartTime=-1s149ms createdFromFg=true
+    startRequested=true delayedStop=false stopIfKilled=false callStart=true lastStartId=1
+ startCommandResult=1
+    Bindings:
+    * IntentBindRecord{c5315df CREATE}:
+      intent={act=android.net.VpnService cmp=com.trackershield.app/.ShieldVpnService}
+      binder=android.os.BinderProxy@984722c
+      requested=true received=true hasBound=true doRebind=false
+      * Client AppBindRecord{23634f5 ProcessRecord{af93126 523:system/1000}}
+        Per-process Connections:
+          ConnectionRecord{6d24f70 u0 CR FGS com.trackershield.app/.ShieldVpnService:@44ccdb3 flags=0x4000001}
+    All Connections:
+      ConnectionRecord{6d24f70 u0 CR FGS com.trackershield.app/.ShieldVpnService:@44ccdb3 flags=0x4000001}
+
+  Connection bindings to services:
+  * ConnectionRecord{6d24f70 u0 CR FGS com.trackershield.app/.ShieldVpnService:@44ccdb3 flags=0x4000001}
+    binding=AppBindRecord{23634f5 com.trackershield.app/.ShieldVpnService:system}
+    conn=android.app.LoadedApk$ServiceDispatcher$InnerConnection@44ccdb3 flags=0x4000001
